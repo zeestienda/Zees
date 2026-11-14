@@ -68,7 +68,9 @@ textarea{min-height:76px;resize:vertical}
 .qty button{width:44px;height:44px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);font-size:22px;cursor:pointer}
 .qty output{min-width:32px;text-align:center;font-weight:600;font-size:19px}
 .total{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid var(--line);padding-top:14px;font-weight:600}
-.total b{font:800 30px "Bricolage Grotesque",sans-serif}
+.total b{font:800 30px "Bricolage Grotesque",sans-serif;text-align:right}
+.total span{padding-right:10px}
+@media (max-width:420px){.total b{font-size:26px}}
 .paybox{background:var(--soft);border-radius:14px;padding:14px 16px;font-size:15px;min-height:56px}
 .note{font-size:14px;color:var(--muted);margin:0}
 .pay h3{font-size:22px;margin-bottom:14px}
@@ -97,18 +99,34 @@ footer{border-top:1px solid var(--line);padding:32px 0 96px;color:var(--muted);f
 .herobg .hero{padding-top:300px;padding-bottom:48px;max-width:none}
 .imgbox.wide{aspect-ratio:16/10}
 }
+.cursel{width:auto;max-width:132px;min-width:0;text-overflow:ellipsis;padding:9px 10px;border-radius:999px;font-size:14px;background:rgba(255,255,255,.75);border:1.5px solid var(--line);color:var(--ink);cursor:pointer}
+@media (max-width:360px){.cursel{max-width:100px;font-size:13px;padding:8px}header .btn{padding:9px 14px!important}}
+.cp{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.cp:last-of-type{border-bottom:0}
+.cp small{display:block;color:var(--muted);font-size:13px;line-height:1.3}
+.cp b{font-weight:600;overflow-wrap:anywhere}
+.cp.long{flex-wrap:wrap}
+.cp.long span{flex:1 1 100%}
+.cp.long b{overflow-wrap:normal;letter-spacing:.2px}
+.cp.long .cpb{margin-left:auto}
+.cpb{flex:none;border:1.5px solid var(--aqua);background:transparent;color:var(--aqua-d);border-radius:999px;padding:7px 14px;font:600 14px "Instrument Sans",sans-serif;cursor:pointer;min-width:84px}
+.cpb:hover{background:var(--aqua);color:var(--on-aqua)}
+.payact{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.payact .btn{padding:10px 18px;font-size:15px;text-align:center}
+.paynote{margin:8px 0 0;font-size:14px;color:var(--muted)}
 </style>
 </head>
 <body>
 <div class="herobg"><div class="wrap">
-<header><a class="logo" href="#top" id="brand">Zees<span>.</span></a><a class="btn ghost" href="#pedido" style="padding:10px 20px;font-size:15px">Comprar</a></header>
+<header><a class="logo" href="#top" id="brand">Zees<span>.</span></a><div style="display:flex;gap:8px;align-items:center"><select id="cur" class="cursel" aria-label="Moneda"></select><a class="btn ghost" href="#pedido" style="padding:10px 20px;font-size:15px">Comprar</a></div></header>
 
 <div class="hero" id="top">
 <div>
 <span class="tag">Envíos a toda Venezuela</span>
 <h1 style="margin-top:14px">Respira aire fresco y duerme mejor</h1>
 <p class="lead">Humidificador portátil con luz LED de 7 colores. Vapor frío y silencioso, carga por USB y tamaño ideal para tu mesita de noche, escritorio o carro.</p>
-<div class="price"><b id="priceTop">$0</b><s id="oldTop">$0</s><span class="tag" id="offTop"></span></div>
+<div class="price"><b id="priceTop">$25</b><s id="oldTop" style="display:none"></s><span class="tag" id="offTop"></span></div>
+<p class="note" id="priceNote" style="display:none;margin:-10px 0 18px;color:var(--muted)"></p>
 <div class="cta"><a class="btn" href="#pedido">Pedir ahora</a><a class="btn ghost" href="#como">Ver cómo funciona</a></div>
 <div class="trust"><span>Envíos por MRW y Zoom</span><span>Garantía de 10 días</span><span>Atención por WhatsApp</span></div>
 </div>
@@ -181,10 +199,12 @@ footer{border-top:1px solid var(--line);padding:32px 0 96px;color:var(--muted);f
 <div class="qty"><button type="button" id="mn" aria-label="Restar">−</button><output id="q">1</output><button type="button" id="pl" aria-label="Sumar">+</button></div></label>
 <label>Forma de pago<select id="pago"></select></label>
 <div class="paybox" id="paybox"></div>
-<div class="total"><span>Total a pagar</span><b id="tot">$0</b></div>
+<div class="total"><span>Total a pagar</span><b id="tot">$25</b></div>
+<p class="note" id="totNote" style="margin:-6px 0 0;text-align:right"></p>
 <button class="btn" type="submit">Enviar pedido por WhatsApp</button>
 <p class="note" id="err" style="color:var(--warn);display:none"></p>
 <p class="note">Al enviar se abre WhatsApp con tu pedido listo. Tu pedido se confirma cuando te respondamos.</p>
+<a class="btn ghost" id="paid" href="#" target="_blank" rel="noopener" style="text-align:center">Ya pagué · enviar comprobante por WhatsApp</a>
 </form>
 <div class="pay">
 <h3>Formas de pago</h3>
@@ -207,7 +227,7 @@ footer{border-top:1px solid var(--line);padding:32px 0 96px;color:var(--muted);f
 <details><summary>¿Cómo confirmo mi pedido?</summary><p>Al enviar el formulario se abre WhatsApp con tu pedido. Te confirmamos disponibilidad, pago y envío por ahí.</p></details>
 </section>
 
-<footer><span id="fbrand">Zees. Humidificadores y hogar</span><span>WhatsApp: <a id="fwa" href="#">0412-5670422</a> · Correo: <a href="mailto:dekud5490@gmail.com">dekud5490@gmail.com</a></span></footer>
+<footer><span id="fbrand">Zees. Humidificadores y hogar</span><span>WhatsApp: <a id="fwa" href="#">0412-5670422</a> · Correo: <a href="mailto:dekud5490@gmail.com">dekud5490@gmail.com</a></span><span class="note" id="rateCredit" style="display:none">Tasas de cambio: <a href="https://www.exchangerate-api.com" target="_blank" rel="noopener">ExchangeRate-API</a> y BCV vía <a href="https://dolarapi.com" target="_blank" rel="noopener">DolarAPI</a></span></footer>
 </div>
 <a class="wa" id="wafloat" href="#" target="_blank" rel="noopener">WhatsApp</a>
 
@@ -218,15 +238,79 @@ var CFG={
   whatsapp:"584125670422",   /* tu número con código de país, sin + ni espacios */
   precio:25, precioAntes:0,
   pagos:[
-    {id:"Pago Móvil",  txt:"Banco: BNC (0191) · Teléfono: 0412-5670422 · Cédula: V-34113864. También puedes transferir a la cuenta 01910212292100006152. Se calcula al monto en Bs. según la tasa BCV del día."},
-    {id:"Zinli / Cuenta de ahorros", txt:"Cuenta de ahorros: 30020025403182 · Cédula: V-34113864."},
-    {id:"Binance Pay", txt:"Binance Pay ID: 912281994 · Cédula: V-34113864 · Teléfono: 0412-5670422. Pago en USDT."},
+    {id:"Pago Móvil", monto:"bs", nota:"El monto en Bs. se calcula con la tasa BCV del día.", campos:[["Banco","BNC (0191)"],["Teléfono","0412-5670422"],["Cédula","V-34113864"],["Cuenta","01910212292100006152"]], txt:"Banco: BNC (0191) · Teléfono: 0412-5670422 · Cédula: V-34113864. También puedes transferir a la cuenta 01910212292100006152. Se calcula al monto en Bs. según la tasa BCV del día."},
+    {id:"Zinli / Cuenta de ahorros", campos:[["Cuenta de ahorros","30020025403182"],["Cédula","V-34113864"]], txt:"Cuenta de ahorros: 30020025403182 · Cédula: V-34113864."},
+    {id:"Binance Pay", monto:"usdt", nota:"Pago en USDT.", link:"", linkTxt:"Pagar con Binance Pay", campos:[["Pay ID","912281994"],["Cédula","V-34113864"],["Teléfono","0412-5670422"]], txt:"Binance Pay ID: 912281994 · Cédula: V-34113864 · Teléfono: 0412-5670422. Pago en USDT."},
     
   ]
 };
+/* En "link" de Binance Pay pega tu enlace de pago (Binance > Pay > Recibir > Enlace de pago). Si lo dejas vacío, el botón no aparece. */
 /* ==================================== */
 var $=function(i){return document.getElementById(i)};
 var qty=1;
+var CUR={code:"USD",rate:1,src:""},FX={rates:{},bcv:null},FXP=null;
+var CURS=[["USD","USD · Dólar"],["VES","VES · Bolívar"],["COP","COP · Peso colombiano"],["MXN","MXN · Peso mexicano"],["PEN","PEN · Sol peruano"],["CLP","CLP · Peso chileno"],["ARS","ARS · Peso argentino"],["BRL","BRL · Real"],["EUR","EUR · Euro"],["DOP","DOP · Peso dominicano"],["GTQ","GTQ · Quetzal"],["CRC","CRC · Colón"],["UYU","UYU · Peso uruguayo"],["BOB","BOB · Boliviano"],["PYG","PYG · Guaraní"]];
+var REG={VE:"VES",CO:"COP",MX:"MXN",PE:"PEN",CL:"CLP",AR:"ARS",BR:"BRL",ES:"EUR",DO:"DOP",GT:"GTQ",CR:"CRC",UY:"UYU",BO:"BOB",PY:"PYG",US:"USD",EC:"USD",PA:"USD",SV:"USD"};
+var TZR={"America/Caracas":"VE","America/Bogota":"CO","America/Mexico_City":"MX","America/Lima":"PE","America/Santiago":"CL","America/Argentina/Buenos_Aires":"AR","America/Sao_Paulo":"BR","America/Guayaquil":"EC","America/Panama":"PA","America/Santo_Domingo":"DO","America/Guatemala":"GT","America/Costa_Rica":"CR","America/Montevideo":"UY","America/La_Paz":"BO","America/Asuncion":"PY","Europe/Madrid":"ES"};
+function num(n,d){return n.toLocaleString("es-VE",{minimumFractionDigits:d,maximumFractionDigits:d})}
+function fmt(code,n){
+  if(code==="VES")return "Bs. "+num(n,2);
+  var d=n>=1000?0:2;
+  try{return new Intl.NumberFormat("es",{style:"currency",currency:code,minimumFractionDigits:d,maximumFractionDigits:d}).format(n)}catch(e){return code+" "+num(n,d)}
+}
+function money(u){return CUR.code==="USD"?usd(u):fmt(CUR.code,u*CUR.rate)}
+function getJSON(u){return new Promise(function(ok,no){var t=setTimeout(function(){no("timeout")},7000);fetch(u).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){clearTimeout(t);ok(j)}).catch(function(e){clearTimeout(t);no(e)})})}
+function loadRates(){
+  if(FXP)return FXP;
+  var c=null;try{c=JSON.parse(localStorage.getItem("zees_fx")||"null")}catch(e){}
+  if(c&&c.t&&Date.now()-c.t<10800000){FX=c;FXP=Promise.resolve();return FXP}
+  FXP=Promise.all([
+    getJSON("https://open.er-api.com/v6/latest/USD").then(function(j){return j&&j.rates?j.rates:null},function(){return null}),
+    getJSON("https://ve.dolarapi.com/v1/dolares/oficial").then(function(j){var v=Number(j&&(j.promedio||j.venta));return v>0?v:null},function(){return null})
+  ]).then(function(a){
+    var old=c||{rates:{},bcv:null};
+    if(!a[0]&&!a[1]){FX=old;if(!old.t)FXP=null;return}
+    FX={t:Date.now(),rates:a[0]||old.rates||{},bcv:a[1]||old.bcv||null};
+    try{localStorage.setItem("zees_fx",JSON.stringify(FX))}catch(e){}
+  });
+  return FXP;
+}
+function detect(){
+  var r="",l=(navigator.languages&&navigator.languages[0])||navigator.language||"";
+  var m=l.match(/[-_]([A-Za-z]{2})$/);if(m)r=m[1].toUpperCase();
+  var tz="";try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone}catch(e){}
+  if(TZR[tz])r=TZR[tz];
+  return REG[r]||"USD";
+}
+function setupCur(){
+  var sel=$("cur");
+  CURS.forEach(function(c){var o=document.createElement("option");o.value=c[0];o.textContent=c[1];sel.appendChild(o)});
+  var pref="";try{pref=localStorage.getItem("zees_cur")||""}catch(e){}
+  var want=pref||detect();
+  if(!CURS.some(function(c){return c[0]===want}))want="USD";
+  sel.value=want;
+  sel.onchange=function(){try{localStorage.setItem("zees_cur",sel.value)}catch(e){}applyCur(sel.value)};
+  upd();
+  applyCur(want);
+  loadRates().then(upd);
+}
+function applyCur(code){
+  if(code==="USD"){CUR={code:"USD",rate:1,src:""};render();return}
+  loadRates().then(function(){
+    var r=(code==="VES"&&FX.bcv)?FX.bcv:FX.rates[code];
+    if(!r){CUR={code:"USD",rate:1,src:""};$("cur").value="USD";render("No pudimos cargar la tasa de cambio. Te mostramos el precio en dólares.");return}
+    CUR={code:code,rate:r,src:(code==="VES"&&FX.bcv?"Tasa BCV":"Tasa referencial")+": 1 USD = "+fmt(code,r)};
+    render();
+  });
+}
+function render(msg){
+  $("priceTop").textContent=money(CFG.precio);
+  var o=$("oldTop");if(o.style.display!=="none"&&CFG.precioAntes>CFG.precio)o.textContent=money(CFG.precioAntes);
+  var n=$("priceNote");
+  if(CUR.code==="USD"&&!msg){n.style.display="none"}else{n.style.display="block";n.textContent=msg||("Equivale a "+usd(CFG.precio)+" USD · "+CUR.src)}
+  $("rateCredit").style.display=CUR.code==="USD"?"none":"inline";
+  upd();
+}
 function usd(n){return "$"+n.toFixed(2).replace(/\.00$/,"")}
 function init(){
   document.querySelector("#brand").innerHTML=CFG.tienda+"<span>.</span>";
@@ -242,13 +326,52 @@ function init(){
     var b=document.createElement("b");b.textContent=p.id;var s=document.createElement("span");s.textContent=p.txt;
     d.appendChild(b);d.appendChild(s);list.appendChild(d);
   });
-  upd();
+  setupCur();
 }
 function upd(){
-  $("q").textContent=qty;$("tot").textContent=usd(CFG.precio*qty);
+  $("q").textContent=qty;$("tot").textContent=money(CFG.precio*qty);$("totNote").textContent=CUR.code==="USD"?"":"Equivale a "+usd(CFG.precio*qty)+" USD";
   var p=CFG.pagos.filter(function(x){return x.id===$("pago").value})[0];
-  $("paybox").textContent=p?p.txt:"";
+  drawPay(p);
 }
+function copyTxt(t,btn){
+  var done=function(){var o=btn.textContent;btn.textContent="¡Copiado!";setTimeout(function(){btn.textContent=o},1500)};
+  function fb(){try{var a=document.createElement("textarea");a.value=t;a.setAttribute("readonly","");a.style.cssText="position:fixed;opacity:0;top:0";document.body.appendChild(a);a.select();a.setSelectionRange(0,99999);document.execCommand("copy");document.body.removeChild(a);done()}catch(e){btn.textContent="Copia manual"}}
+  if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(t).then(done,fb)}else{fb()}
+}
+function payRows(p){
+  var rows=(p.campos||[]).map(function(c){return {l:c[0],show:c[1],copy:c[1]}});
+  var u=CFG.precio*qty;
+  if(p.monto==="bs"){
+    var r=FX.bcv||(FX.rates&&FX.rates.VES);
+    if(r>0){var v=u*r;rows.unshift({l:"Monto en Bs.",show:"Bs. "+num(v,2),copy:v.toFixed(2).replace(".",",")})}
+  }
+  if(p.monto==="usdt"){var t=(Math.round(u*100)/100).toString();rows.unshift({l:"Monto en USDT",show:t+" USDT",copy:t})}
+  return rows;
+}
+function drawPay(p){
+  var box=$("paybox");box.textContent="";
+  if(!p)return;
+  var rows=payRows(p);
+  if(!rows.length){box.textContent=p.txt;return}
+  rows.forEach(function(r){
+    var d=document.createElement("div");d.className="cp"+(String(r.show).length>16?" long":"");
+    var sp=document.createElement("span");var sm=document.createElement("small");sm.textContent=r.l;var b=document.createElement("b");b.textContent=r.show;sp.appendChild(sm);sp.appendChild(b);
+    var bt=document.createElement("button");bt.type="button";bt.className="cpb";bt.textContent="Copiar";bt.setAttribute("aria-label","Copiar "+r.l);
+    bt.onclick=function(){copyTxt(r.copy,bt)};
+    d.appendChild(sp);d.appendChild(bt);box.appendChild(d);
+  });
+  var act=document.createElement("div");act.className="payact";
+  if(p.link){var a=document.createElement("a");a.className="btn";a.href=p.link;a.target="_blank";a.rel="noopener";a.textContent=p.linkTxt||"Pagar ahora";act.appendChild(a)}
+  var all=document.createElement("button");all.type="button";all.className="btn ghost";all.textContent="Copiar todo";
+  all.onclick=function(){copyTxt(p.id+"\n"+rows.map(function(r){return r.l+": "+r.copy}).join("\n"),all)};
+  act.appendChild(all);box.appendChild(act);
+  if(p.nota){var n=document.createElement("p");n.className="paynote";n.textContent=p.nota;box.appendChild(n)}
+}
+$("paid").onclick=function(){
+  var nm=$("nombre").value.trim();
+  var m="*COMPROBANTE DE PAGO - "+CFG.tienda+"*\n\nYa realicé el pago de mi pedido.\nCantidad: "+qty+"\nTotal: "+usd(CFG.precio*qty)+" USD\nForma de pago: "+$("pago").value+(nm?"\nNombre: "+nm:"")+"\n\nTe envío el comprobante (capture) por aquí.";
+  this.href="https://wa.me/"+CFG.whatsapp+"?text="+encodeURIComponent(m);
+};
 $("mn").onclick=function(){if(qty>1){qty--;upd()}};
 $("pl").onclick=function(){if(qty<10){qty++;upd()}};
 $("pago").onchange=upd;
@@ -258,8 +381,8 @@ $("f").addEventListener("submit",function(e){
   var er=$("err");
   if(bad.length){er.textContent="Completa los campos obligatorios: nombre, teléfono, estado, ciudad y dirección.";er.style.display="block";$(bad[0]).focus();return}
   er.style.display="none";
-  var m="*NUEVO PEDIDO - "+CFG.tienda+"*\n\nProducto: Humidificador H2O con luz LED\nCantidad: "+qty+"\nTotal: "+usd(CFG.precio*qty)+"\nForma de pago: "+$("pago").value+"\n\nNombre: "+$("nombre").value.trim()+"\nCédula: "+($("ci").value.trim()||"-")+"\nTeléfono: "+$("tel").value.trim()+"\nEstado: "+$("estado").value.trim()+"\nCiudad: "+$("ciudad").value.trim()+"\nDirección: "+$("dir").value.trim();
-  window.open("https://wa.me/"+CFG.whatsapp+"?text="+encodeURIComponent(m),"_blank");
+  var m="*NUEVO PEDIDO - "+CFG.tienda+"*\n\nProducto: Humidificador H2O con luz LED\nCantidad: "+qty+"\nTotal: "+usd(CFG.precio*qty)+" USD"+(CUR.code==="USD"?"":" ("+money(CFG.precio*qty)+" · "+CUR.src+")")+"\nForma de pago: "+$("pago").value+"\n\nNombre: "+$("nombre").value.trim()+"\nCédula: "+($("ci").value.trim()||"-")+"\nTeléfono: "+$("tel").value.trim()+"\nEstado: "+$("estado").value.trim()+"\nCiudad: "+$("ciudad").value.trim()+"\nDirección: "+$("dir").value.trim();
+  var url="https://wa.me/"+CFG.whatsapp+"?text="+encodeURIComponent(m);var w=window.open(url,"_blank");if(!w){window.location.href=url}
 });
 init();
 </script>
